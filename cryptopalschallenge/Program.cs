@@ -36,6 +36,11 @@ namespace cryptopalschallenge
                     Challenge02 c2 = new Challenge02();
                     Console.WriteLine(c2.DoChallenge02(opts.Value1, opts.Value2));
                     break;
+                case 3:
+                    //-c 03 -x 1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736
+                    Challenge03 c3 = new Challenge03();
+                    Console.WriteLine(c3.DoChallenge03(opts.Value1));
+                    break;
                 default:
                     Console.WriteLine("Invalid options specified.");
                     break;
