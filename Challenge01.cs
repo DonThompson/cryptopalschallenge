@@ -11,13 +11,12 @@ namespace cryptopalschallenge
         /// Output:  SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t
         /// </summary>
         /// <param name="hexString"></param>
-        public void DoChallenge01(string hexString)
+        public string DoChallenge01(string hexString)
         {
             byte[] byteArray = HexStringToByteArrayConverter.Convert(hexString);
 
             string output = Convert.ToBase64String(byteArray);
-
-            Console.WriteLine(output);
+            return output;
         }
     }
 }
