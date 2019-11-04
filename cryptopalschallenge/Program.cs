@@ -46,10 +46,16 @@ namespace cryptopalschallenge
                     Challenge04 c4 = new Challenge04();
                     Console.WriteLine(c4.DoChallenge04());
                     break;
+                case 5:
+                    //-c 05 -x "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal" -y "ICE"
+                    Challenge05 c5 = new Challenge05();
+                    Console.WriteLine(c5.DoChallenge05(opts.Value1, opts.Value2));
+                    break;
                 default:
                     Console.WriteLine("Invalid options specified.");
                     break;
             }
+
         }
 
     }
