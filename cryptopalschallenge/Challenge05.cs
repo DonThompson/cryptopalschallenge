@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using cryptopalschallenge.Tools;
 
 namespace cryptopalschallenge
 {
@@ -10,25 +8,15 @@ namespace cryptopalschallenge
     public class Challenge05
     {
         /// <summary>
-        /// 
+        /// Implement a repeating key XOR for the given input string
         /// </summary>
         /// <param name="input"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        public string RepeatingKeyXOR(string input, string key)
+        public string DoChallenge05(string input, string key)
         {
-            byte[] inputArray = Encoding.UTF8.GetBytes(input);
-            byte[] keyArray = Encoding.UTF8.GetBytes(key);
-
-            byte[] result = new byte[inputArray.Length];
-            for (int i = 0; i < inputArray.Length; i++)
-            {
-                    //XOR each byte of input by a rotation through the key
-                    result[i] = (byte)(inputArray[i] ^ keyArray[i%keyArray.Length]);
-            }
-
-            return BitConverter.ToString(result).Replace("-", "");
-
+            RepeatingKeyXOR encryptor = new RepeatingKeyXOR();
+            return encryptor.EncryptInputWithKey(input, key);
         }
     }
 }
