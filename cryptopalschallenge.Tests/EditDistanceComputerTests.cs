@@ -16,7 +16,7 @@ namespace cryptopalschallenge.Tests
             string s2 = "wokka wokka!!!";
 
             EditDistanceComputer c = new EditDistanceComputer();
-            int distance = c.ComputeBitDistanceBetween(s1, s2);
+            int distance = c.ComputeBitDistanceBetweenStrings(s1, s2);
             Assert.AreEqual(37, distance);
         }
     }

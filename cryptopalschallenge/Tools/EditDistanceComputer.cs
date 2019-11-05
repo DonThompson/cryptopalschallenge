@@ -11,12 +11,17 @@ namespace cryptopalschallenge.Tools
         /// <param name="s1">A plain text UTF8 string</param>
         /// <param name="s2">A plain text UTF8 string</param>
         /// <returns>The number of differing bits</returns>
-        public int ComputeBitDistanceBetween(string s1, string s2)
+        public int ComputeBitDistanceBetweenStrings(string s1, string s2)
         {
             byte[] b1 = Encoding.UTF8.GetBytes(s1);
             byte[] b2 = Encoding.UTF8.GetBytes(s2);
 
-            if(b1.Length != b2.Length)
+            return ComputeBitDistanceBetweenByteArrays(b1, b2);   
+        }
+
+        public int ComputeBitDistanceBetweenByteArrays(byte[] b1, byte[] b2)
+        {
+            if (b1.Length != b2.Length)
             {
                 throw new Exception("Cannot compute distance on strings of differing length.");
             }
@@ -24,7 +29,7 @@ namespace cryptopalschallenge.Tools
 
             int distance = 0;
             //Iterate through each byte
-            for(int i = 0; i < b1.Length; i++)
+            for (int i = 0; i < b1.Length; i++)
             {
                 //Bitwise Calculation from wikipedia... https://en.wikipedia.org/wiki/Hamming_distance
                 //Iterate through each bit in the byte.  If they don't match, add to our distance.  Could also do this with some bitwise shifting operators.

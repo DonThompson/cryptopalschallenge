@@ -21,6 +21,27 @@ namespace cryptopalschallenge.Tools
             BestResults = new SingleCharXORResult();
         }
 
+        public void TestAllKeys(byte[] encodedBytes)
+        {
+            //Work over the whole range of the byte (0-255)
+            for (int key = 0; key < 256; key++)
+            {
+                //We need a byte array of the same length with the character to test
+                byte[] testKey = new byte[encodedBytes.Length];
+                for (int i = 0; i < encodedBytes.Length; i++)
+                {
+                    testKey[i] = (byte)key;
+                }
+
+                //Now XOR it
+                byte[] result = XOR.ExclusiveOR(encodedBytes, testKey);
+
+                //See if it rates as a valid string?
+                string readable = Encoding.UTF8.GetString(result);
+                CheckHighScore(BitConverter.ToString(encodedBytes).Replace("-", "").ToLower(), readable, (byte)key);
+            }
+        }
+
         /// <summary>
         /// Given an encoded string, tests all possible single character keys against it.  Attempts to retrieve the best results by 
         /// analyzing the resulting strings for character frequency.
@@ -29,25 +50,7 @@ namespace cryptopalschallenge.Tools
         public void TestAllKeys(string encodedString)
         {
             byte[] data = HexStringToByteArrayConverter.Convert(encodedString);
-            
-
-            //Work over the whole range of the byte (0-255)
-            for (int key = 0; key < 256; key++)
-            {
-                //We need a byte array of the same length with the character to test
-                byte[] testKey = new byte[data.Length];
-                for (int i = 0; i < data.Length; i++)
-                {
-                    testKey[i] = (byte)key;
-                }
-
-                //Now XOR it
-                byte[] result = XOR.ExclusiveOR(data, testKey);
-
-                //See if it rates as a valid string?
-                string readable = Encoding.UTF8.GetString(result);
-                CheckHighScore(encodedString, readable, (byte)key);
-            }
+            TestAllKeys(data);
         }
 
         private void CheckHighScore(string input, string readable, byte key)
