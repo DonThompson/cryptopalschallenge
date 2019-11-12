@@ -31,6 +31,7 @@ namespace cryptopalschallenge.Tools
             //Iterate through each byte
             for (int i = 0; i < b1.Length; i++)
             {
+                /*
                 //Bitwise Calculation from wikipedia... https://en.wikipedia.org/wiki/Hamming_distance
                 //Iterate through each bit in the byte.  If they don't match, add to our distance.  Could also do this with some bitwise shifting operators.
                 for (uint val = (uint)(b1[i] ^ b2[i]); val > 0; val /= 2)
@@ -39,6 +40,15 @@ namespace cryptopalschallenge.Tools
 
                     if (test != 0)
                         distance++;
+                }
+                */
+
+                //Trying an alternative calculation
+                var v = (int)(b1[i] ^ b2[i]);
+                while(v != 0)
+                {
+                    distance++;
+                    v &= v-1;
                 }
             }
 

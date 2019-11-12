@@ -1,7 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace cryptopalschallenge.Tests
 {
@@ -14,7 +11,7 @@ namespace cryptopalschallenge.Tests
             Challenge06 c = new Challenge06();
             string result = c.DoChallenge06();
 
-            Assert.AreEqual("I don't know yet", result);
+            Assert.AreEqual("Terminator X: Bring the noise", result);
         }
     }
 }

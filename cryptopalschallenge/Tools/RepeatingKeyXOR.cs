@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace cryptopalschallenge.Tools
@@ -29,12 +31,12 @@ namespace cryptopalschallenge.Tools
         /// <summary>
         /// Given some encrypted data, attempts to find the key size by comparing the edit distance between blocks of various size.
         /// 
-        /// TODO STATUS 11/5/2019 10:53 AM:  As best I can tell, this is implemented fully correct.  But it doesn't work.  On my simple phrase, 
-        /// the real key length is the 4th best out of 10.  On the challenge 5 phrase, it's 15-20th best chosen.
+        /// USAGE:  Don't use this one.  This is the most simplistic version, comparing only the first 2 blocks.  Despite a suggestion
+        /// from the challenge authors to do this, it doesn't actually succeed.
         /// </summary>
         /// <param name="encryptedData">The encrypted data to be analyzed</param>
         /// <returns>The length in bytes of the key that likely encrypted that data</returns>
-        public static int FindKeySize(byte[] encryptedData)
+        public static int FindKeySize_DoNotUse(byte[] encryptedData)
         {
             EditDistanceComputer edc = new EditDistanceComputer();
 
@@ -97,6 +99,194 @@ namespace cryptopalschallenge.Tools
             byte[] p2 = new byte[numBytes];
             Array.Copy(source, startIndex, p2, 0, numBytes);
             return p2;
+        }
+
+
+        /// <summary>
+        /// Same as FindKeySize, but uses the avg distance between the first and each subsequent block instead of just the first two blocks.  This results
+        /// in a more fully evaluated result, which is more likely to be correct.
+        /// 
+        /// USAGE:  Doesn't actually work.  Despite the challenge author's claims, this doesn't work consistently.  I'm leaving it as-is for now and we'll
+        /// see if we need to come back to it later.  See more notes on _CopyFromInternet version.
+        /// </summary>
+        /// <param name="encryptedData"></param>
+        /// <returns></returns>
+        public static int FindKeySize_AvgDistance(byte[] encryptedData)
+        {
+            EditDistanceComputer edc = new EditDistanceComputer();
+
+            int lowestKeySize = 100000000;
+            float lowestNormalizedDistance = 100000000.0f;
+
+            //debug
+            StringBuilder debug = new StringBuilder();
+
+            //Try various key size guesses.
+            for (int keySize = 2; keySize <= 40; keySize++)
+            {
+                //A bit of an assumption here... but we're 
+                //  attempting a repeating XOR cipher.  If the key is, say, 10 bytes long, but the text is only 18 bytes long, 
+                //  then we haven't really used a repeating XOR cipher - it finished before we repeated.  So let's terminate any keys
+                //  if we reach half the distance of the encrypted data.
+                if (encryptedData.Length < keySize * 2)
+                {
+                    break;
+                }
+
+                //Get the first keySize bytes out of the encrypted data
+                byte[] p1 = GetNBytes(encryptedData, 0, keySize);
+
+                float totalNormalizedDistance = 0.0f;
+
+                //Make an array of all remaining blocks possible
+                int numAddtlBlocks = (encryptedData.Length - keySize) / 2;
+                for(int i = 1; i <= numAddtlBlocks; i++)
+                {
+                    byte[] compare = GetNBytes(encryptedData, keySize * i, keySize);
+
+                    //Find the distance between those 2 values.
+                    int distance = edc.ComputeBitDistanceBetweenByteArrays(p1, compare);
+
+                    //Normalize the value by the length so the shortest key isn't automatically the winner
+                    totalNormalizedDistance += ((float)distance / (float)keySize);
+                }
+
+                float avgNormalizedDistance = totalNormalizedDistance / numAddtlBlocks;
+
+
+                if (avgNormalizedDistance < lowestNormalizedDistance)
+                {
+                    lowestNormalizedDistance = avgNormalizedDistance;
+                    lowestKeySize = keySize;
+                }
+
+                debug.AppendFormat("Length:  {0}\tDistance:  {1}\tNormalized:{2}\r\n", keySize, totalNormalizedDistance, avgNormalizedDistance);
+            }
+
+            string s = debug.ToString();
+
+            return lowestKeySize;
+        }
+
+
+        /// <summary>
+        /// Like _AvgDistance, except instead of comparing block 0 to each remaining block, we just compare neighboring blocks
+        /// 
+        /// USAGE:  Doesn't actually work.  Despite the challenge author's claims, this doesn't work consistently.  I'm leaving it as-is for now and we'll
+        /// see if we need to come back to it later.  See more notes on _CopyFromInternet version.
+        /// </summary>
+        /// <param name="encryptedData"></param>
+        /// <returns></returns>
+        public static int FindKeySize_AvgDistanceByNeighbor(byte[] encryptedData)
+        {
+            EditDistanceComputer edc = new EditDistanceComputer();
+
+            int lowestKeySize = 100000000;
+            float lowestNormalizedDistance = 100000000.0f;
+
+            //debug
+            StringBuilder debug = new StringBuilder();
+
+            //Try various key size guesses.
+            for (int keySize = 2; keySize <= 40; keySize++)
+            {
+                //A bit of an assumption here... but we're 
+                //  attempting a repeating XOR cipher.  If the key is, say, 10 bytes long, but the text is only 18 bytes long, 
+                //  then we haven't really used a repeating XOR cipher - it finished before we repeated.  So let's terminate any keys
+                //  if we reach half the distance of the encrypted data.
+                if (encryptedData.Length < keySize * 2)
+                {
+                    break;
+                }
+
+                float totalNormalizedDistance = 0.0f;
+
+                int numBlocks = (int)Math.Ceiling(encryptedData.Length/(double)keySize);
+                for (int i = 0; i < encryptedData.Length; i += keySize)
+                {
+                    byte[] b1 = GetNBytes(encryptedData, keySize * i, keySize);
+                    byte[] b2 = GetNBytes(encryptedData, keySize * (i + 1), keySize);
+
+                    //Find the distance between those 2 values.
+                    int distance = edc.ComputeBitDistanceBetweenByteArrays(b1, b2);
+
+                    //Normalize the value by the length so the shortest key isn't automatically the winner
+                    //TODO:  totalNormalizedDistance += ((float)distance / (float)keySize);
+                    totalNormalizedDistance += (float)distance;
+                }
+                
+                float avgNormalizedDistance = totalNormalizedDistance / numBlocks / keySize;
+                if (avgNormalizedDistance < lowestNormalizedDistance)
+                {
+                    lowestNormalizedDistance = avgNormalizedDistance;
+                    lowestKeySize = keySize;
+                }
+
+                debug.AppendFormat("Length:  {0}\tDistance:  {1}\tNormalized:{2}\r\n", keySize, totalNormalizedDistance, avgNormalizedDistance);
+            }
+
+            string s = debug.ToString();
+
+            return lowestKeySize;
+        }
+
+        /// <summary>
+        /// https://www.scottbrady91.com/Cryptopals/Caesar-and-Vigenere-Ciphers
+        /// 
+        /// This should be the same algorithm I have above... but it gets different results, so I've done something wrong...
+        /// 
+        /// However, it *only* works for the given cryptopals example.  Any other test I give it fails to return the right key length.
+        /// 
+        /// USAGE:  This works to break the specific Challenge06 cypher.  It works for that phrase & key and returns the proper value.
+        /// However, this is not a useful function.  It seems like they cherry picked something that happens to work.  I tried this with
+        /// several other phrases/keys and none of them work right.  I also found several others online implementing this and they
+        /// have the same problem - it doesn't break anything except rare cyphers (one of which just happens to be the challenge).
+        /// Here's an online example with I believe similar code you can play with to see the faults:
+        /// https://thmsdnnr.com/cryptopals/s1c6/index.html
+        /// 
+        /// Given the time investment so far, I'm going to leave this as-is and see how we go.
+        /// </summary>
+        /// <param name="encryptedData"></param>
+        /// <returns></returns>
+        public static int FindKeySize_CopyFromInternet(byte[] encryptedData)
+        {
+            //debug
+            StringBuilder debug = new StringBuilder();
+            //
+            EditDistanceComputer edc = new EditDistanceComputer();
+            var keySizeResults = new Dictionary<int, double>();
+
+            // 1. "Let KEYSIZE be the guessed length of the key; try values from 2 to (say) 40."
+            for (var keySize = 2; keySize <= 40; keySize++)
+            {
+                // 2. For hamming distance tests see Funcationlity\StringExtensionTests.cs
+                // 3. "For each KEYSIZE, take the first KEYSIZE worth of bytes, 
+                // and the second KEYSIZE worth of bytes, and find the edit distance between them.
+                // Normalize this result by dividing by KEYSIZE."
+
+                var hammingDistance = 0;
+                var numberOfHams = 0;
+
+                for (int i = 1; i < encryptedData.Length / keySize; i++)
+                {
+                    var firstKeySizeBytes = encryptedData.Skip(keySize * (i - 1)).Take(keySize);
+                    var secondKeySizeBytes = encryptedData.Skip(keySize * i).Take(keySize);
+
+                    hammingDistance += edc.ComputeBitDistanceBetweenByteArrays(firstKeySizeBytes.ToArray(), secondKeySizeBytes.ToArray());
+                    numberOfHams++;
+                }
+
+                if (numberOfHams > 0)
+                {
+                    double normalizedDistance = (double)hammingDistance / numberOfHams / keySize;
+                    keySizeResults.Add(keySize, normalizedDistance);
+                    debug.AppendFormat("Length:  {0}\tNormalized:{1}\r\n", keySize, normalizedDistance);
+                }
+            }
+
+
+            string s = debug.ToString();
+            return keySizeResults.Aggregate((l, r) => l.Value < r.Value ? l : r).Key;
         }
     }
 }
