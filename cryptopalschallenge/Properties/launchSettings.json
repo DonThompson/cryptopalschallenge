@@ -2,7 +2,7 @@
   "profiles": {
     "cryptopalschallenge": {
       "commandName": "Project",
-      "commandLineArgs": "-c 07"
+      "commandLineArgs": "-c 08"
     }
   }
 }
