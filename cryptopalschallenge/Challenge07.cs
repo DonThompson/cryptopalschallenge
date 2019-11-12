@@ -1,10 +1,12 @@
-﻿using System;
-using System.IO;
-using System.Security.Cryptography;
+﻿using cryptopalschallenge.Tools;
+using System;
 using System.Text;
 
 namespace cryptopalschallenge
 {
+    /// <summary>
+    /// https://cryptopals.com/sets/1/challenges/7
+    /// </summary>
     public class Challenge07
     {
         //Too long to take as input, we'll hardcode it again
@@ -14,31 +16,16 @@ namespace cryptopalschallenge
         //Key
         private string theMagicKey = "YELLOW SUBMARINE";
 
+        /// <summary>
+        /// Converts the given base64 encoded AES-128 encrypted data
+        /// </summary>
+        /// <returns></returns>
         public string DoChallenge07()
         {
             byte[] encryptedData = Convert.FromBase64String(base64EncryptedData);
             byte[] key = Encoding.ASCII.GetBytes(theMagicKey);
 
-
-            RijndaelManaged AES = new RijndaelManaged();
-            AES.Padding = PaddingMode.PKCS7;
-            AES.Mode = CipherMode.ECB;
-            AES.KeySize = 128;
-            AES.BlockSize = 128;
-
-            string result = "";
-            using (MemoryStream ms = new MemoryStream(encryptedData))
-            {
-                using (CryptoStream cs = new CryptoStream(ms, AES.CreateDecryptor(key, key), CryptoStreamMode.Read))
-                {
-                    using (StreamReader sr = new StreamReader(cs))
-                    {
-                        result = sr.ReadToEnd();
-                    }
-                }
-            }
-
-            return result;
+            return AESHelper.Decrypt(encryptedData, key);
         }
     }
 }
