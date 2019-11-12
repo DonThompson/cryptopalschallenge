@@ -2,7 +2,7 @@
   "profiles": {
     "cryptopalschallenge": {
       "commandName": "Project",
-      "commandLineArgs": "-c 05 -x \"very simple phrase\" -y \"ICE\""
+      "commandLineArgs": "-c 06"
     }
   }
 }
