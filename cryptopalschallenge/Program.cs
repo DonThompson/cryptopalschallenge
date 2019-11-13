@@ -66,6 +66,11 @@ namespace cryptopalschallenge
                     Challenge08 c8 = new Challenge08();
                     Console.WriteLine(c8.DoChallenge08());
                     break;
+                case 9:
+                    //-c 09 -x "YELLOW SUBMARINE" -y 20
+                    Challenge09 c9 = new Challenge09();
+                    Console.WriteLine(c9.DoChallenge09(opts.Value1, opts.Value2));
+                    break;
                 default:
                     Console.WriteLine("Invalid options specified.");
                     break;
