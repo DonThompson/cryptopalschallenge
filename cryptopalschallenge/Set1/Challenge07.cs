@@ -25,7 +25,7 @@ namespace cryptopalschallenge
             byte[] encryptedData = Convert.FromBase64String(base64EncryptedData);
             byte[] key = Encoding.ASCII.GetBytes(theMagicKey);
 
-            return AESHelper.Decrypt(encryptedData, key);
+            return AESHelper.DecryptECB(encryptedData, key);
         }
     }
 }

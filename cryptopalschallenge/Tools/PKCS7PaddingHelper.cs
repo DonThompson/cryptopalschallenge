@@ -19,19 +19,28 @@ namespace cryptopalschallenge.Tools
                 throw new ArgumentException("Cannot pad a string that is longer than the desired length.");
             }
 
-            int numberOfBytesToAdd = desiredLength - input.Length;
-
-            byte[] result = new byte[desiredLength];
             byte[] inputBytes = Encoding.ASCII.GetBytes(input);
+            byte[] result = PadBytes(inputBytes, desiredLength);
+            return Encoding.ASCII.GetString(result);
+        }
 
-            Array.Copy(inputBytes, 0, result, 0, input.Length);
-
-            for (int i = 0; i < numberOfBytesToAdd; i++)
+        public static byte[] PadBytes(byte[] inputBytes, int desiredLength)
+        {
+            if (inputBytes.Length > desiredLength)
             {
-                result[input.Length + i] = (byte)numberOfBytesToAdd;
+                throw new ArgumentException("Cannot pad input that is longer than the desired length.");
             }
 
-            return Encoding.ASCII.GetString(result);
+            byte[] result = new byte[desiredLength];
+            Array.Copy(inputBytes, 0, result, 0, inputBytes.Length);
+
+            int numberOfBytesToAdd = desiredLength - inputBytes.Length;
+            for (int i = 0; i < numberOfBytesToAdd; i++)
+            {
+                result[inputBytes.Length + i] = (byte)numberOfBytesToAdd;
+            }
+
+            return result;
         }
     }
 }

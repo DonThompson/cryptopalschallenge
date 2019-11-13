@@ -71,6 +71,11 @@ namespace cryptopalschallenge
                     Challenge09 c9 = new Challenge09();
                     Console.WriteLine(c9.DoChallenge09(opts.Value1, opts.Value2));
                     break;
+                case 10:
+                    //-c 10
+                    Challenge10 c10 = new Challenge10();
+                    Console.WriteLine(c10.DoChallenge10());
+                    break;
                 default:
                     Console.WriteLine("Invalid options specified.");
                     break;

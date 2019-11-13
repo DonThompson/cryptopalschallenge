@@ -2,7 +2,7 @@
   "profiles": {
     "cryptopalschallenge": {
       "commandName": "Project",
-      "commandLineArgs": "-c 09 -x \"YELLOW SUBMARINE\" -y 20"
+      "commandLineArgs": "-c 10"
     }
   }
 }

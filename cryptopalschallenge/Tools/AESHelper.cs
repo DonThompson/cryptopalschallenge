@@ -6,7 +6,7 @@ namespace cryptopalschallenge.Tools
 {
     public static class AESHelper
     {
-        public static string Decrypt(byte[] encryptedData, byte[] key)
+        public static string DecryptECB(byte[] encryptedData, byte[] key)
         {
             RijndaelManaged AES = new RijndaelManaged();
             AES.Padding = PaddingMode.PKCS7;
@@ -18,6 +18,29 @@ namespace cryptopalschallenge.Tools
             using (MemoryStream ms = new MemoryStream(encryptedData))
             {
                 using (CryptoStream cs = new CryptoStream(ms, AES.CreateDecryptor(key, key), CryptoStreamMode.Read))
+                {
+                    using (StreamReader sr = new StreamReader(cs))
+                    {
+                        result = sr.ReadToEnd();
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static string DecryptCBC(byte[] encryptedData, byte[] key, byte[] IV)
+        {
+            RijndaelManaged AES = new RijndaelManaged();
+            AES.Padding = PaddingMode.PKCS7;
+            AES.Mode = CipherMode.CBC;
+            AES.KeySize = 128;
+            AES.BlockSize = 128;
+
+            string result = "";
+            using (MemoryStream ms = new MemoryStream(encryptedData))
+            {
+                using (CryptoStream cs = new CryptoStream(ms, AES.CreateDecryptor(key, IV), CryptoStreamMode.Read))
                 {
                     using (StreamReader sr = new StreamReader(cs))
                     {
